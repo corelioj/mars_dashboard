@@ -131,9 +131,9 @@ const getImageOfTheDay = (state) => {
 }
 
 const getImageOfTheRovers = (state) => {
-    let { roversInfo } = state
+    const { roversInfo } = state
 
-    fetch(`http://localhost:3000/roversInfo`)
+    fetch(`http://localhost:3000/roversInfo/curiosity`)
         .then(res => res.json())
         .then(roversInfo => updateStore(store, { roversInfo }))
 
