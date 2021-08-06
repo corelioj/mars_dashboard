@@ -32,11 +32,11 @@ app.get('/apod', async(req, res) => {
 app.get('/roversInfo/:rover', async(req, res) => {
     try {
         const rover = req.params.rover.toLowerCase();
-        let imagesRover = await fetch(`https://api.nasa.gov/mars-photos/api/v1/rovers/${rover}/latest_photos?api_key=${process.env.API_KEY}`)
+        const imagesRover = await fetch(`https://api.nasa.gov/mars-photos/api/v1/rovers/${rover}/latest_photos?api_key=${process.env.API_KEY}`)
 
         .then(res => res.json())
         res.send({ imagesRover })
-        console.log('teste rover:', req);
+        console.log('teste rover:', imagesRover);
     } catch (err) {
         console.log('error:', err);
     }

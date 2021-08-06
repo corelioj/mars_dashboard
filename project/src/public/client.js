@@ -1,17 +1,18 @@
-let store = {
-    user: { name: 'Student' },
+const store = Immutable.Map({
+    user: Immutable.Map({ name: 'John', lastName: 'Doe' }),
     apod: '',
-    roversInfo: '',
-    rovers: ['Curiosity', 'Opportunity', 'Spirit'],
-}
+    roversInfo: [],
+    rovers: Immutable.List(['Curiosity', 'Opportunity', 'Spirit']),
+})
 
 // add our markup to the page
 const root = document.getElementById('root')
 
 const updateStore = (store, newState) => {
-    const newStore = Object.assign(store, newState)
-    console.log('New Store: ', newStore)
+    const newStore = store.set('apod', newState)
+
     render(root, newStore)
+
 }
 
 const render = async(root, state) => {
@@ -22,12 +23,17 @@ const render = async(root, state) => {
 // create content
 const App = (state) => {
 
-    let { apod } = state
-    let { roversInfo } = state
+    const apodData = state.get('apod')
+    const roversInfoData = state.get('roversInfo')
+
+    console.log(state.toJS())
+    console.log(apodData)
+    console.log(roversInfoData)
+
     return `
         <header></header>
         <main>
-            ${Greeting(store.user.name)}
+            ${Greeting(state.getIn(['user', 'name']), state.getIn(['user', 'lastName']))}
             <section>
                 <h3>Put things on the page!</h3>
                 <p>Here is an example section.</p>
@@ -39,12 +45,12 @@ const App = (state) => {
                     explanation are returned. These keywords could be used as auto-generated hashtags for twitter or instagram feeds;
                     but generally help with discoverability of relevant imagery.
                 </p>
-                ${ImageOfTheDay(apod)}
+                ${ImageOfTheDay(apodData)}
                 
             </section>
             <section>
             <h3>Hovers</h3>
-            ${ImagesFromRover(roversInfo)}
+            ${ImagesFromRover(roversInfoData)}
 
             </section>
         </main>
@@ -60,10 +66,10 @@ window.addEventListener('load', () => {
 // ------------------------------------------------------  COMPONENTS
 
 // Pure function that renders conditional information -- THIS IS JUST AN EXAMPLE, you can delete it.
-const Greeting = (name) => {
+const Greeting = (name, lastName) => {
     if (name) {
         return `
-            <h1>Welcome, ${name}!</h1>
+            <h1>Welcome, ${name} ${lastName}!</h1>
         `
     }
 
@@ -74,46 +80,62 @@ const Greeting = (name) => {
 
 // Example of a pure function that renders infomation requested from the backend
 const ImageOfTheDay = (apod) => {
-
     // If image does not already exist, or it is not from today -- request it again
     const today = new Date()
-    const photodate = new Date(apod.date)
-    console.log(photodate.getDate(), today.getDate());
+    let photoDate = 0
+    if (apod) {
+        photoDate = new Date(apod.apod.date)
+    }
 
-    console.log(photodate.getDate() === today.getDate());
-    if (!apod || apod.date === today.getDate()) {
+    if (!apod || apod.apod.date === today.getDate()) {
         getImageOfTheDay(store)
     }
 
-    // check if the photo of the day is actually type video!
-    if (apod.media_type === "video") {
-        return (`
-            <p>See today's featured video <a href="${apod.url}">here</a></p>
+    if (apod) {
+        // check if the photo of the day is actually type video!
+        if (apod.media_type === "video") {
+
+            return (`
+            <p>See today's featured video <a href="${apod.apod.url}">here</a></p>
             <p>${apod.title}</p>
             <p>${apod.explanation}</p>
         `)
-    } else {
-        console.log(apod)
-        return (`
+        } else {
+
+            return (`
             <img src="${apod.apod.url}" height="350px"  />
             <p>${apod.apod.explanation}</p>
         `)
+        }
     }
+
 }
 
 const ImagesFromRover = (roversInfo) => {
 
     // If image does not already exist, or it is not from today -- request it again
 
-    const teste1 = getImageOfTheRovers(roversInfo)
-    console.log('Data received: ', teste1)
+
+    const teste = getImageOfRovers(roversInfo)
+    console.log(teste)
+        /* const photoArraySize = roversInfo.roversInfo.imagesRover.latest_photos.length
+        const randomPhotoArrayPosition = Math.floor(photoArraySize * Math.random())
+        const randomPhoto = roversInfo.roversInfo.imagesRover.latest_photos[randomPhotoArrayPosition].img_src
+        const roverLandingDate = roversInfo.roversInfo.imagesRover.latest_photos[randomPhotoArrayPosition].rover.landing_date
+        const roverLaunchDate = roversInfo.roversInfo.imagesRover.latest_photos[randomPhotoArrayPosition].rover.launch_date
+        const roverStatus = roversInfo.roversInfo.imagesRover.latest_photos[randomPhotoArrayPosition].rover.status.toUpperCase() */
 
 
 
-    return (`
-            <img src="${roversInfo.photos[0].img_src}" height="350px"  />
-            
-        `)
+
+
+    return 0
+        /* (`
+                   <img src="${randomPhoto}" height="350px"  />
+                   <p>Landing Date: ${roverLandingDate}</p>
+                   <p>Launch Date: ${roverLaunchDate}</p>
+                   <p>Rover Stauts: ${roverStatus}</p>
+               `) */
 
 }
 
@@ -121,21 +143,20 @@ const ImagesFromRover = (roversInfo) => {
 
 // Example API call
 const getImageOfTheDay = (state) => {
-    let { apod } = state
 
-    fetch(`http://localhost:3000/apod`)
+    const data = fetch(`http://localhost:3000/apod`)
         .then(res => res.json())
-        .then(apod => updateStore(store, { apod }))
+        .then((apod) => updateStore(store, apod))
 
     return data
 }
 
-const getImageOfTheRovers = (state) => {
-    const { roversInfo } = state
+const getImageOfRovers = (state) => {
 
-    fetch(`http://localhost:3000/roversInfo/curiosity`)
+
+    const data = fetch(`http://localhost:3000/roversInfo/curiosity`)
         .then(res => res.json())
-        .then(roversInfo => updateStore(store, { roversInfo }))
+        .then(roversInfo => updateStore(store, roversInfo))
 
     return data
 }
