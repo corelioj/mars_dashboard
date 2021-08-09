@@ -1,7 +1,7 @@
 const store = Immutable.Map({
     user: Immutable.Map({ name: 'John', lastName: 'Doe' }),
-    apod: '',
-    roversInfo: [],
+    //apod: '',
+    roversInfo: '',
     rovers: Immutable.List(['Curiosity', 'Opportunity', 'Spirit']),
 })
 
@@ -9,7 +9,7 @@ const store = Immutable.Map({
 const root = document.getElementById('root')
 
 const updateStore = (store, newState) => {
-    const newStore = store.set('apod', newState)
+    const newStore = store.set('roversInfo', newState)
 
     render(root, newStore)
 
@@ -23,11 +23,11 @@ const render = async(root, state) => {
 // create content
 const App = (state) => {
 
-    const apodData = state.get('apod')
+    //const apodData = state.get('apod')
     const roversInfoData = state.get('roversInfo')
 
     console.log(state.toJS())
-    console.log(apodData)
+        //console.log(apodData)
     console.log(roversInfoData)
 
     return `
@@ -112,44 +112,43 @@ const Greeting = (name, lastName) => {
 } */
 
 const ImagesFromRover = (roversInfo) => {
+    console.log("Rovers info:", roversInfo)
+        // If image does not already exist, or it is not from today -- request it again
 
-    // If image does not already exist, or it is not from today -- request it again
+    if (!roversInfo) {
+        getImageOfRovers(roversInfo)
+    }
 
-
-    const teste = getImageOfRovers(roversInfo)
-    console.log(teste)
-        /* const photoArraySize = roversInfo.roversInfo.imagesRover.latest_photos.length
-        const randomPhotoArrayPosition = Math.floor(photoArraySize * Math.random())
-        const randomPhoto = roversInfo.roversInfo.imagesRover.latest_photos[randomPhotoArrayPosition].img_src
-        const roverLandingDate = roversInfo.roversInfo.imagesRover.latest_photos[randomPhotoArrayPosition].rover.landing_date
-        const roverLaunchDate = roversInfo.roversInfo.imagesRover.latest_photos[randomPhotoArrayPosition].rover.launch_date
-        const roverStatus = roversInfo.roversInfo.imagesRover.latest_photos[randomPhotoArrayPosition].rover.status.toUpperCase() */
-
-
-
+    const photoArraySize = roversInfo.imagesRover.latest_photos.length
+    const randomPhotoArrayPosition = Math.floor(photoArraySize * Math.random())
+    const randomPhoto = roversInfo.imagesRover.latest_photos[randomPhotoArrayPosition].img_src
+    const roverLandingDate = roversInfo.imagesRover.latest_photos[randomPhotoArrayPosition].rover.landing_date
+    const roverLaunchDate = roversInfo.imagesRover.latest_photos[randomPhotoArrayPosition].rover.launch_date
+    const roverStatus = roversInfo.imagesRover.latest_photos[randomPhotoArrayPosition].rover.status.toUpperCase()
 
 
-    return 0
-        /* (`
+
+
+
+    return `
                    <img src="${randomPhoto}" height="350px"  />
                    <p>Landing Date: ${roverLandingDate}</p>
                    <p>Launch Date: ${roverLaunchDate}</p>
                    <p>Rover Stauts: ${roverStatus}</p>
-               `) */
-
+               `
 }
 
 // ------------------------------------------------------  API CALLS
 
 // Example API call
-const getImageOfTheDay = (state) => {
+/* const getImageOfTheDay = (state) => {
 
     const data = fetch(`http://localhost:3000/apod`)
         .then(res => res.json())
         .then((apod) => updateStore(store, apod))
 
     return data
-}
+} */
 
 const getImageOfRovers = (state) => {
 
