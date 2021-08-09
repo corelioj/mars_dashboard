@@ -45,7 +45,7 @@ const App = (state) => {
                     explanation are returned. These keywords could be used as auto-generated hashtags for twitter or instagram feeds;
                     but generally help with discoverability of relevant imagery.
                 </p>
-                ${ImageOfTheDay(apodData)}
+                
                 
             </section>
             <section>
@@ -79,7 +79,7 @@ const Greeting = (name, lastName) => {
 }
 
 // Example of a pure function that renders infomation requested from the backend
-const ImageOfTheDay = (apod) => {
+/* const ImageOfTheDay = (apod) => {
     // If image does not already exist, or it is not from today -- request it again
     const today = new Date()
     let photoDate = 0
@@ -109,7 +109,7 @@ const ImageOfTheDay = (apod) => {
         }
     }
 
-}
+} */
 
 const ImagesFromRover = (roversInfo) => {
 
