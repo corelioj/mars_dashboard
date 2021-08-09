@@ -23,34 +23,28 @@ const render = async(root, state) => {
 // create content
 const App = (state) => {
 
-    //const apodData = state.get('apod')
     const roversInfoData = state.get('roversInfo')
+    const roverName = state.get('rovers').toArray()
+    const roversInfoArray = []
+
+    roverName.map((name) => {
+        const object = {}
+        object.name = name
+        object.info = roversInfoData
+        roversInfoArray.push(object)
+    })
+
 
     console.log(state.toJS())
-        //console.log(apodData)
-    console.log(roversInfoData)
 
     return `
         <header></header>
         <main>
             ${Greeting(state.getIn(['user', 'name']), state.getIn(['user', 'lastName']))}
+            
             <section>
-                <h3>Put things on the page!</h3>
-                <p>Here is an example section.</p>
-                <p>
-                    One of the most popular websites at NASA is the Astronomy Picture of the Day. In fact, this website is one of
-                    the most popular websites across all federal agencies. It has the popular appeal of a Justin Bieber video.
-                    This endpoint structures the APOD imagery and associated metadata so that it can be repurposed for other
-                    applications. In addition, if the concept_tags parameter is set to True, then keywords derived from the image
-                    explanation are returned. These keywords could be used as auto-generated hashtags for twitter or instagram feeds;
-                    but generally help with discoverability of relevant imagery.
-                </p>
-                
-                
-            </section>
-            <section>
-            <h3>Hovers</h3>
-            ${ImagesFromRover(roversInfoData)}
+            
+            ${roversInfoArray.map((data) => ImagesFromRover(data))}
 
             </section>
         </main>
@@ -67,15 +61,20 @@ window.addEventListener('load', () => {
 
 // Pure function that renders conditional information -- THIS IS JUST AN EXAMPLE, you can delete it.
 const Greeting = (name, lastName) => {
-    if (name) {
+    if (name && lastName) {
         return `
             <h1>Welcome, ${name} ${lastName}!</h1>
         `
+    } else if (name) {
+        `
+            <h1>Welcome, ${name} ${lastName}!</h1>
+        `
+    } else {
+        return `
+    <h1>Hello!</h1>
+`
     }
 
-    return `
-        <h1>Hello!</h1>
-    `
 }
 
 // Example of a pure function that renders infomation requested from the backend
@@ -111,30 +110,38 @@ const Greeting = (name, lastName) => {
 
 } */
 
-const ImagesFromRover = (roversInfo) => {
-    console.log("Rovers info:", roversInfo)
-        // If image does not already exist, or it is not from today -- request it again
+const ImagesFromRover = (roverInfo) => {
 
-    if (!roversInfo) {
-        getImageOfRovers(roversInfo)
+    // If image does not already exist, or it is not from today -- request it again
+    let photoArraySize = null
+    let randomPhotoArrayPosition = null
+    let randomPhoto = null
+    let roverLandingDate = null
+    let roverLaunchDate = null
+    let roverStatus = null
+    let roverName = null
+
+    console.log('Rover info: ', roverInfo)
+
+
+    if (!roverInfo.info) {
+        getImageOfRovers(roverInfo)
+    } else {
+        photoArraySize = roverInfo.info.imagesRover.latest_photos.length
+        randomPhotoArrayPosition = Math.floor(photoArraySize * Math.random())
+        randomPhoto = roverInfo.info.imagesRover.latest_photos[randomPhotoArrayPosition].img_src
+        roverLandingDate = roverInfo.info.imagesRover.latest_photos[randomPhotoArrayPosition].rover.landing_date
+        roverLaunchDate = roverInfo.info.imagesRover.latest_photos[randomPhotoArrayPosition].rover.launch_date
+        roverStatus = roverInfo.info.imagesRover.latest_photos[randomPhotoArrayPosition].rover.status.toUpperCase()
+        roverName = roverInfo.name.toUpperCase()
     }
 
-    const photoArraySize = roversInfo.imagesRover.latest_photos.length
-    const randomPhotoArrayPosition = Math.floor(photoArraySize * Math.random())
-    const randomPhoto = roversInfo.imagesRover.latest_photos[randomPhotoArrayPosition].img_src
-    const roverLandingDate = roversInfo.imagesRover.latest_photos[randomPhotoArrayPosition].rover.landing_date
-    const roverLaunchDate = roversInfo.imagesRover.latest_photos[randomPhotoArrayPosition].rover.launch_date
-    const roverStatus = roversInfo.imagesRover.latest_photos[randomPhotoArrayPosition].rover.status.toUpperCase()
-
-
-
-
-
     return `
-                   <img src="${randomPhoto}" height="350px"  />
-                   <p>Landing Date: ${roverLandingDate}</p>
-                   <p>Launch Date: ${roverLaunchDate}</p>
-                   <p>Rover Stauts: ${roverStatus}</p>
+                    <h3>${roverName}</h3>
+                    <img src="${randomPhoto}" height="350px"  />
+                    <p>Landing Date: ${roverLandingDate}</p>
+                    <p>Launch Date: ${roverLaunchDate}</p>
+                    <p>Rover Stauts: ${roverStatus}</p>
                `
 }
 
@@ -151,9 +158,9 @@ const ImagesFromRover = (roversInfo) => {
 } */
 
 const getImageOfRovers = (state) => {
+    console.log('getImage name: ', state.name)
 
-
-    const data = fetch(`http://localhost:3000/roversInfo/curiosity`)
+    const data = fetch(`http://localhost:3000/roversInfo/${state.name}`)
         .then(res => res.json())
         .then(roversInfo => updateStore(store, roversInfo))
 
