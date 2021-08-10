@@ -1,17 +1,19 @@
 const store = Immutable.Map({
-    user: Immutable.Map({ name: 'John', lastName: 'Doe' }),
-    //apod: '',
-    roversInfo: '',
-    rovers: Immutable.List(['Curiosity', 'Opportunity', 'Spirit']),
+    user: { name: 'John', lastName: 'Doe' },
+    rovers: ['Curiosity', 'Opportunity', 'Spirit'],
+    curiosity: '',
+    opportunity: '',
+    spirit: '',
 })
 
 // add our markup to the page
 const root = document.getElementById('root')
 
 const updateStore = (store, newState) => {
-    const newStore = store.set('roversInfo', newState)
-
-    render(root, newStore)
+    const newStore = store.merge(store, newState);
+    store = Object.assign(store, newStore)
+    console.log('Store: ', store.toJS())
+        /* render(root, newStore) */
 
 }
 
@@ -23,19 +25,10 @@ const render = async(root, state) => {
 // create content
 const App = (state) => {
 
-    const roversInfoData = state.get('roversInfo')
-    const roverName = state.get('rovers').toArray()
-    const roversInfoArray = []
-
-    roverName.map((name) => {
-        const object = {}
-        object.name = name
-        object.info = roversInfoData
-        roversInfoArray.push(object)
-    })
+    const roverName = state.get('rovers')
 
 
-    console.log(state.toJS())
+
 
     return `
         <header></header>
@@ -44,7 +37,7 @@ const App = (state) => {
             
             <section>
             
-            ${roversInfoArray.map((data) => ImagesFromRover(data))}
+            ${roverName.map((data) => ImagesFromRover(data, state))}
 
             </section>
         </main>
@@ -54,7 +47,10 @@ const App = (state) => {
 
 // listening for load event because page should load before any JS is called
 window.addEventListener('load', () => {
-    render(root, store)
+    getRoversInfoApi(store)
+        /* render(root, store) */
+
+
 })
 
 // ------------------------------------------------------  COMPONENTS
@@ -77,64 +73,40 @@ const Greeting = (name, lastName) => {
 
 }
 
-// Example of a pure function that renders infomation requested from the backend
-/* const ImageOfTheDay = (apod) => {
-    // If image does not already exist, or it is not from today -- request it again
-    const today = new Date()
-    let photoDate = 0
-    if (apod) {
-        photoDate = new Date(apod.apod.date)
+const ImagesFromRover = (roverInfo, state) => {
+
+    console.log('ImagesFromRover', roverInfo, state.toJS())
+
+    const roverNameLowerCase = roverInfo.toLowerCase()
+    let selectRover
+
+    switch (roverNameLowerCase) {
+        case 'curiosity':
+            selectRover = state.get('curiosity')
+            console.log('select Rover: ', selectRover)
+            break;
+
+        case 'opportunity':
+            selectRover = state.get('opportunity')
+            console.log('select Rover: ', selectRover)
+            break;
+
+        case 'spirit':
+            selectRover = state.get('spirit')
+            console.log('select Rover: ', selectRover)
+            break;
+
+        default:
+            break;
     }
 
-    if (!apod || apod.apod.date === today.getDate()) {
-        getImageOfTheDay(store)
-    }
-
-    if (apod) {
-        // check if the photo of the day is actually type video!
-        if (apod.media_type === "video") {
-
-            return (`
-            <p>See today's featured video <a href="${apod.apod.url}">here</a></p>
-            <p>${apod.title}</p>
-            <p>${apod.explanation}</p>
-        `)
-        } else {
-
-            return (`
-            <img src="${apod.apod.url}" height="350px"  />
-            <p>${apod.apod.explanation}</p>
-        `)
-        }
-    }
-
-} */
-
-const ImagesFromRover = (roverInfo) => {
-
-    // If image does not already exist, or it is not from today -- request it again
-    let photoArraySize = null
-    let randomPhotoArrayPosition = null
-    let randomPhoto = null
-    let roverLandingDate = null
-    let roverLaunchDate = null
-    let roverStatus = null
-    let roverName = null
-
-    console.log('Rover info: ', roverInfo)
-
-
-    if (!roverInfo.info) {
-        getImageOfRovers(roverInfo)
-    } else {
-        photoArraySize = roverInfo.info.imagesRover.latest_photos.length
-        randomPhotoArrayPosition = Math.floor(photoArraySize * Math.random())
-        randomPhoto = roverInfo.info.imagesRover.latest_photos[randomPhotoArrayPosition].img_src
-        roverLandingDate = roverInfo.info.imagesRover.latest_photos[randomPhotoArrayPosition].rover.landing_date
-        roverLaunchDate = roverInfo.info.imagesRover.latest_photos[randomPhotoArrayPosition].rover.launch_date
-        roverStatus = roverInfo.info.imagesRover.latest_photos[randomPhotoArrayPosition].rover.status.toUpperCase()
-        roverName = roverInfo.name.toUpperCase()
-    }
+    const photoArraySize = selectRover.roverInfo.latest_photos.length
+    const randomPhotoArrayPosition = Math.floor(photoArraySize * Math.random())
+    const randomPhoto = selectRover.roverInfo.latest_photos[randomPhotoArrayPosition].img_src
+    const roverLandingDate = selectRover.roverInfo.latest_photos[randomPhotoArrayPosition].rover.landing_date
+    const roverLaunchDate = selectRover.roverInfo.latest_photos[randomPhotoArrayPosition].rover.launch_date
+    const roverStatus = selectRover.roverInfo.latest_photos[randomPhotoArrayPosition].rover.status.toUpperCase()
+    const roverName = roverInfo.toUpperCase()
 
     return `
                     <h3>${roverName}</h3>
@@ -148,21 +120,27 @@ const ImagesFromRover = (roverInfo) => {
 // ------------------------------------------------------  API CALLS
 
 // Example API call
-/* const getImageOfTheDay = (state) => {
+const getRoversInfoApi = async(store) => {
 
-    const data = fetch(`http://localhost:3000/apod`)
-        .then(res => res.json())
-        .then((apod) => updateStore(store, apod))
+    //pull the API for all 3 rovers and store in it's respective value in store
+    const roversArray = store.get('rovers')
+    await roversArray.map(async(rover) => {
+        try {
+            const res = await fetch(`http://localhost:3000/roversInfo/${rover}`)
+            const data = await res.json()
+            const newStore = store.set(rover.toLowerCase(), data)
+            updateStore(store, newStore);
+        } catch (error) {
+            console.error(error)
+        }
 
-    return data
-} */
+    })
+}
 
-const getImageOfRovers = (state) => {
-    console.log('getImage name: ', state.name)
+function openForm() {
+    document.getElementById("myForm").style.display = "block";
+}
 
-    const data = fetch(`http://localhost:3000/roversInfo/${state.name}`)
-        .then(res => res.json())
-        .then(roversInfo => updateStore(store, roversInfo))
-
-    return data
+function closeForm() {
+    document.getElementById("myForm").style.display = "none";
 }
