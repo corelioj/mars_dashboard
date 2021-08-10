@@ -1,10 +1,46 @@
 const store = Immutable.Map({
-    user: { name: 'John', lastName: 'Doe' },
+    user: { name: '', lastName: '' },
     rovers: ['Curiosity', 'Opportunity', 'Spirit'],
     curiosity: '',
     opportunity: '',
     spirit: '',
 })
+
+const buttonNameOk = document.querySelector('#btnOk');
+const buttonNameCancel = document.querySelector('#btnCancel');
+
+
+buttonNameOk.addEventListener('click', () => {
+    getFormData()
+    removeForm()
+    render(root, store)
+})
+
+
+buttonNameCancel.addEventListener('click', () => {
+    removeForm()
+    render(root, store)
+})
+
+const getFormData = function() {
+    const form = document.querySelector('#nameInput');
+    const elements = Array.from(form.elements)
+    const values = elements.map(data => data.value)
+
+    const newStore = store.setIn(['user', 'name'], values[0])
+    const newStore1 = newStore.setIn(['user', 'lastName'], values[1])
+    console.log(newStore1.toJS())
+    updateStore(store, newStore1);
+
+}
+
+
+function removeForm() {
+    const element = document.querySelector('#form-input');
+    const form = document.querySelector('#nameInput');
+    element.removeChild(form);
+}
+
 
 // add our markup to the page
 const root = document.getElementById('root')
@@ -13,8 +49,6 @@ const updateStore = (store, newState) => {
     const newStore = store.merge(store, newState);
     store = Object.assign(store, newStore)
     console.log('Store: ', store.toJS())
-        /* render(root, newStore) */
-
 }
 
 const render = async(root, state) => {
@@ -26,9 +60,6 @@ const render = async(root, state) => {
 const App = (state) => {
 
     const roverName = state.get('rovers')
-
-
-
 
     return `
         <header></header>
@@ -59,15 +90,15 @@ window.addEventListener('load', () => {
 const Greeting = (name, lastName) => {
     if (name && lastName) {
         return `
-            <h1>Welcome, ${name} ${lastName}!</h1>
+            <h2>Welcome, ${name} ${lastName}!</h2>
         `
     } else if (name) {
         `
-            <h1>Welcome, ${name} ${lastName}!</h1>
+            <h2>Welcome, ${name} ${lastName}!</h2>
         `
     } else {
         return `
-    <h1>Hello!</h1>
+    <h2>Hello!</h2>
 `
     }
 
@@ -135,12 +166,4 @@ const getRoversInfoApi = async(store) => {
         }
 
     })
-}
-
-function openForm() {
-    document.getElementById("myForm").style.display = "block";
-}
-
-function closeForm() {
-    document.getElementById("myForm").style.display = "none";
 }
