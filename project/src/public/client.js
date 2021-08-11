@@ -31,7 +31,7 @@ const getFormData = function() {
 
     const newStore = store.setIn(['user', 'name'], values[0])
     const newStore1 = newStore.setIn(['user', 'lastName'], values[1])
-    console.log(newStore1.toJS())
+
     updateStore(store, newStore1);
 
 }
@@ -47,7 +47,6 @@ const removeForm = () => {
 const updateStore = (store, newState) => {
     const newStore = store.merge(store, newState);
     store = Object.assign(store, newStore)
-    console.log('Store: ', store.toJS())
 }
 
 const render = async(root, state) => {
@@ -69,14 +68,12 @@ const listenRoversBtn = () => {
     btnOpportunity.addEventListener("click", () => {
         const hoverInfosContainer = document.querySelector('#hoverInfosContainer')
         hoverInfosContainer.innerHTML = generateHoverInfos('Opportunity', store)
-        console.log('Clicked Btn Opportunity')
         return false;
     });
 
     btnSpirit.addEventListener("click", () => {
         const hoverInfosContainer = document.querySelector('#hoverInfosContainer')
         hoverInfosContainer.innerHTML = generateHoverInfos('Spirit', store)
-        console.log('Clicked Btn Spirit')
         return false;
     });
 }
@@ -103,7 +100,21 @@ const generateHoverInfos = (hoverName, state) => {
             break;
     }
 
-    const photoArraySize = selectRover.roverInfo.latest_photos.length
+    const photoArray = selectRover.roverInfo.latest_photos
+    const photoArraySize = photoArray.length
+    const maxArraySize = 10
+    let finalPhotoArray
+
+    if (photoArraySize <= maxArraySize) {
+        finalPhotoArray = photoArray
+    } else {
+        let randomMaxArraySize = new Array(maxArraySize);
+        const newArray = randomMaxArraySize.map((photoArray) => {
+
+
+        })
+    }
+
     const randomPhotoArrayPosition = Math.floor(photoArraySize * Math.random())
     const randomPhoto = selectRover.roverInfo.latest_photos[randomPhotoArrayPosition].img_src
     const roverLandingDate = selectRover.roverInfo.latest_photos[randomPhotoArrayPosition].rover.landing_date
@@ -124,6 +135,34 @@ const generateHoverInfos = (hoverName, state) => {
                 </div>
             </div>
             <div id="hoverCarouselContainer" class="container">
+                ${generateCarouselImages(roverNameLowerCase)}
+            </div>
+            `
+}
+
+const generateCarouselImages = (roverNameLowerCase) => {
+
+    return `
+            <div id="carouselControls" class="carousel slide m-5" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <img src="/assets/pictures/curiosity.jpg" class="d-block w-100" alt="...">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="/assets/pictures/opportunity.jpg" class="d-block w-100" alt="...">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="/assets/pictures/spirit.jpg" class="d-block w-100" alt="...">
+                    </div>
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselControls" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button"                 data-bs-target="#carouselControls" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
             </div>
             `
 }
@@ -141,14 +180,6 @@ const App = (state) => {
             ${Greeting(userName, userLastName)}
             
             ${createHoverSelect()}
-
-            ${hoversCards()}
-
-            <section>
-            
-            ${roverName.map((data) => ImagesFromRover(data, state))}
-
-            </section>
 
         <footer></footer>
     `
@@ -186,53 +217,11 @@ const createReloadButton = () => {
     header.appendChild(btn).classList.add('btnReload');
 }
 
-const hoversCards = () => {
-    return `
-            <div class="container">
-            <div class="row">
-                <div class="col my-3">
-                    <div class="card mx-auto" style="width: 18rem;">
-                        <img src="/assets/pictures/curiosity.jpg" class="card-img-top" alt="curiosity.jpg">
-                        <div class="card-body">
-                            <h5 class="card-title">Card title</h5>
-                            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                            <a id="btnCuriosity" class="btn btn-primary">Curiosity Images</a>
-                        </div>
-                    </div>
-            </div>
-        <div class="col my-3">
-            <div class="card mx-auto" style="width: 18rem;">
-                <img src="/assets/pictures/opportunity.jpg" class="card-img-top" alt="opportunity.jpg">
-                <div class="card-body">
-                    <h5 class="card-title">Card title</h5>
-                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                    <a id="btnOpportunity" class="btn btn-primary">Opportunity Images</a>
-                </div>
-            </div>
-        </div>
-        <div class="col my-3">
-            <div class="card mx-auto" style="width: 18rem;">
-                <img src="/assets/pictures/spirit.jpg" class="card-img-top" alt="spirit.jpg">
-                <div class="card-body">
-                    <h5 class="card-title">Card title</h5>
-                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                    <a id="btnSpirit" class="btn btn-primary">Spirit Images</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    </div>
-    `
-}
-
-
-
 // ------------------------------------------------------  COMPONENTS
 
 
 const Greeting = (name, lastName) => {
 
-    console.log('Name: ', name, "Last Name: ", lastName)
     if (name || lastName) {
         return `
             <h2>Welcome, ${name} ${lastName}!</h2>
@@ -246,50 +235,6 @@ const Greeting = (name, lastName) => {
 `
     }
 
-}
-
-const ImagesFromRover = (roverInfo, state) => {
-
-    console.log('ImagesFromRover', roverInfo, state.toJS())
-
-    const roverNameLowerCase = roverInfo.toLowerCase()
-    let selectRover
-
-    switch (roverNameLowerCase) {
-        case 'curiosity':
-            selectRover = state.get('curiosity')
-            console.log('select Rover: ', selectRover)
-            break;
-
-        case 'opportunity':
-            selectRover = state.get('opportunity')
-            console.log('select Rover: ', selectRover)
-            break;
-
-        case 'spirit':
-            selectRover = state.get('spirit')
-            console.log('select Rover: ', selectRover)
-            break;
-
-        default:
-            break;
-    }
-
-    const photoArraySize = selectRover.roverInfo.latest_photos.length
-    const randomPhotoArrayPosition = Math.floor(photoArraySize * Math.random())
-    const randomPhoto = selectRover.roverInfo.latest_photos[randomPhotoArrayPosition].img_src
-    const roverLandingDate = selectRover.roverInfo.latest_photos[randomPhotoArrayPosition].rover.landing_date
-    const roverLaunchDate = selectRover.roverInfo.latest_photos[randomPhotoArrayPosition].rover.launch_date
-    const roverStatus = selectRover.roverInfo.latest_photos[randomPhotoArrayPosition].rover.status.toUpperCase()
-    const roverName = roverInfo.toUpperCase()
-
-    return `
-                    <h3>${roverName}</h3>
-                    <img src="${randomPhoto}" height="350px"  />
-                    <p>Landing Date: ${roverLandingDate}</p>
-                    <p>Launch Date: ${roverLaunchDate}</p>
-                    <p>Rover Stauts: ${roverStatus}</p>
-               `
 }
 
 // ------------------------------------------------------  API CALLS

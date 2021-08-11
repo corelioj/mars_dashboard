@@ -15,6 +15,7 @@ body {
 
 h1 {
     margin: 30px;
+    text-align: center;
     font-family: 'ultra';
     font-weight: 500;
     color: #eee;
@@ -63,7 +64,7 @@ input {
     display: inline-block;
     background: #ccc;
     padding: 0.8em;
-    margin: 1.2em auto;
+    margin: auto;
     transition: ease 0.3s all;
 }
 
@@ -107,12 +108,4 @@ input {
     h3 {
         font-size: 3em;
     }
-}
-
-
-/* Footer */
-
-.fine-print {
-    display: block;
-    font-size: 0.7em;
 }
