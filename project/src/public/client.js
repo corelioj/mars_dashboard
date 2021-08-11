@@ -62,26 +62,67 @@ const App = (state) => {
     const roverName = state.get('rovers')
 
     return `
-        <header></header>
+    
         <main>
             ${Greeting(state.getIn(['user', 'name']), state.getIn(['user', 'lastName']))}
             
+            ${hoversCards()}
+
             <section>
             
             ${roverName.map((data) => ImagesFromRover(data, state))}
 
             </section>
+
+            
+
         </main>
         <footer></footer>
+    `
+}
+
+const hoversCards = () => {
+    return `
+    <div class="container ">
+    <div class="row">
+        <div class="col my-3">
+            <div class="card" style="width: 18rem;">
+                <img src="/assets/pictures/curiosity.jpg" class="card-img-top" alt="curiosity.jpg">
+                <div class="card-body">
+                    <h5 class="card-title">Card title</h5>
+                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                    <a id="btnCuriosity" class="btn btn-primary">Curiosity Images</a>
+                </div>
+            </div>
+        </div>
+        <div class="col my-3">
+            <div class="card" style="width: 18rem;">
+                <img src="/assets/pictures/opportunity.jpg" class="card-img-top" alt="opportunity.jpg">
+                <div class="card-body">
+                    <h5 class="card-title">Card title</h5>
+                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                    <a id="btnOpportunity" class="btn btn-primary">Opportunity Images</a>
+                </div>
+            </div>
+        </div>
+        <div class="col my-3">
+            <div class="card" style="width: 18rem;">
+                <img src="/assets/pictures/spirity.jpg" class="card-img-top" alt="spirity.jpg">
+                <div class="card-body">
+                    <h5 class="card-title">Card title</h5>
+                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                    <a id="btnSpirity" class="btn btn-primary">Spirity Images</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
     `
 }
 
 // listening for load event because page should load before any JS is called
 window.addEventListener('load', () => {
     getRoversInfoApi(store)
-        /* render(root, store) */
-
-
 })
 
 // ------------------------------------------------------  COMPONENTS

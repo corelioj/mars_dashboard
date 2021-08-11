@@ -1,47 +1,109 @@
-/* -------------------  MOBILE  --------------------- */
+/* General Styles */
+
+@font-face {
+    font-family: 'ultra';
+    src: url('/assets/fonts/Ultra/Ultra.otf');
+}
 
 body {
-    display: flex;
-    flex-direction: column;
-    font-family: Arial;
+    background: rgb(0, 0, 0);
+    background: linear-gradient(0deg, rgb(179, 179, 179) 0%, rgb(54, 54, 54) 100%);
+    font-family: 'Open Sans', sans-serif;
+    text-align: center;
     min-height: 100vh;
 }
 
-
-/* h1 {
-    color: #FFF;
-} */
-
-header {
-    /* header styles */
+h1 {
+    margin: 30px;
+    font-family: 'ultra';
+    font-weight: 500;
+    color: #eee;
 }
 
-main {
-    flex: 1;
-    padding: 20px;
+h2,
+h3 {
+    font-family: 'Oswald', sans-serif;
+    color: #eee;
 }
 
-footer {
-    /* footer styles */
+p {
+    font-weight: 100;
+}
+
+
+/* Form Styles */
+
+.form-container {
+    background: #eee;
+    padding: 1.3em;
+    text-align: left;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+form p {
+    margin-bottom: 0.3em;
+    font-size: 1.0em;
+    font-weight: 600;
+    font-family: 'Oswald', sans-serif;
+}
+
+input {
+    padding: 0.7em;
+    background: #fff;
+    border: 0;
+}
+
+.form-field__full {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.btnNameInput {
+    display: inline-block;
+    background: #ccc;
+    padding: 0.8em;
+    margin: 1.2em auto;
+    transition: ease 0.3s all;
+}
+
+.btnNameInput:hover {
+    background: #777;
+    color: #fff;
+    cursor: pointer;
 }
 
 
 /* -------------------  TABLET  --------------------- */
 
 @media (min-width: 768px) {
-    /* use mobile */
+    h1 {
+        font-size: 3em;
+    }
 }
 
 
 /* -------------------  DESKTOP  -------------------- */
 
 @media (min-width: 1224px) {
-    /* use mobile */
+    h1 {
+        font-size: 5em;
+    }
 }
 
 
 /* -------------------  LARGE SCREENS  -------------- */
 
 @media (min-width: 1824px) {
-    /* use mobile */
+    h1 {
+        font-size: 5em;
+    }
+}
+
+
+/* Footer */
+
+.fine-print {
+    display: block;
+    font-size: 0.7em;
 }
