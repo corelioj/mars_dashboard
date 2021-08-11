@@ -1,3 +1,5 @@
+// Initial variables
+
 const store = Immutable.Map({
     user: { name: '', lastName: '' },
     rovers: ['Curiosity', 'Opportunity', 'Spirit'],
@@ -6,18 +8,18 @@ const store = Immutable.Map({
     spirit: '',
 })
 
+const root = document.getElementById('root')
 const buttonNameOk = document.querySelector('#btnOk');
 const buttonNameCancel = document.querySelector('#btnCancel');
+
+// listening for load event because page should load before any JS is called
+window.addEventListener('load', () => {
+    getRoversInfoApi(store)
+})
 
 
 buttonNameOk.addEventListener('click', () => {
     getFormData()
-    removeForm()
-    render(root, store)
-})
-
-
-buttonNameCancel.addEventListener('click', () => {
     removeForm()
     render(root, store)
 })
@@ -35,15 +37,12 @@ const getFormData = function() {
 }
 
 
-function removeForm() {
-    const element = document.querySelector('#form-input');
-    const form = document.querySelector('#nameInput');
-    element.removeChild(form);
+const removeForm = () => {
+    const main = document.querySelector('main');
+    const form = document.querySelector('#form-input');
+    main.removeChild(form);
 }
 
-
-// add our markup to the page
-const root = document.getElementById('root')
 
 const updateStore = (store, newState) => {
     const newStore = store.merge(store, newState);
@@ -53,19 +52,96 @@ const updateStore = (store, newState) => {
 
 const render = async(root, state) => {
     root.innerHTML = App(state)
+    listenRoversBtn()
 }
 
+const listenRoversBtn = () => {
+    const btnCuriosity = document.querySelector('#btnCuriosity');
+    const btnOpportunity = document.querySelector('#btnOpportunity');
+    const btnSpirit = document.querySelector('#btnSpirit');
 
-// create content
+    btnCuriosity.addEventListener("click", () => {
+        const hoverInfosContainer = document.querySelector('#hoverInfosContainer')
+        hoverInfosContainer.innerHTML = generateHoverInfos('Curiosity', store)
+        return false;
+    });
+
+    btnOpportunity.addEventListener("click", () => {
+        const hoverInfosContainer = document.querySelector('#hoverInfosContainer')
+        hoverInfosContainer.innerHTML = generateHoverInfos('Opportunity', store)
+        console.log('Clicked Btn Opportunity')
+        return false;
+    });
+
+    btnSpirit.addEventListener("click", () => {
+        const hoverInfosContainer = document.querySelector('#hoverInfosContainer')
+        hoverInfosContainer.innerHTML = generateHoverInfos('Spirit', store)
+        console.log('Clicked Btn Spirit')
+        return false;
+    });
+}
+
+const generateHoverInfos = (hoverName, state) => {
+
+    const roverNameLowerCase = hoverName.toLowerCase()
+    let selectRover
+
+    switch (roverNameLowerCase) {
+        case 'curiosity':
+            selectRover = state.get('curiosity')
+            break;
+
+        case 'opportunity':
+            selectRover = state.get('opportunity')
+            break;
+
+        case 'spirit':
+            selectRover = state.get('spirit')
+            break;
+
+        default:
+            break;
+    }
+
+    const photoArraySize = selectRover.roverInfo.latest_photos.length
+    const randomPhotoArrayPosition = Math.floor(photoArraySize * Math.random())
+    const randomPhoto = selectRover.roverInfo.latest_photos[randomPhotoArrayPosition].img_src
+    const roverLandingDate = selectRover.roverInfo.latest_photos[randomPhotoArrayPosition].rover.landing_date
+    const roverLaunchDate = selectRover.roverInfo.latest_photos[randomPhotoArrayPosition].rover.launch_date
+    const roverStatus = selectRover.roverInfo.latest_photos[randomPhotoArrayPosition].rover.status.toUpperCase()
+
+
+    return `
+            <div id="hoverCardContainer" class="container">
+                <div class="card mx-auto" style="width: 18rem;">
+                    <img src="/assets/pictures/${roverNameLowerCase}.jpg" class="card-img-top" alt="${roverNameLowerCase}.jpg">
+                    <div class="card-body">
+                        <h5 class="card-title">${hoverName}</h5>
+                        <p class="card-text">Launch Date: ${roverLaunchDate}</p>
+                        <p class="card-text">Landing Date: ${roverLandingDate}</p>
+                        <p class="card-text">Rover Stauts: ${roverStatus}</p>
+                    </div>
+                </div>
+            </div>
+            <div id="hoverCarouselContainer" class="container">
+            </div>
+            `
+}
+
+// create initial content
 const App = (state) => {
 
     const roverName = state.get('rovers')
 
+    const userName = state.getIn(['user', 'name'])
+    const userLastName = state.getIn(['user', 'lastName'])
+
     return `
     
-        <main>
-            ${Greeting(state.getIn(['user', 'name']), state.getIn(['user', 'lastName']))}
+            ${Greeting(userName, userLastName)}
             
+            ${createHoverSelect()}
+
             ${hoversCards()}
 
             <section>
@@ -74,29 +150,58 @@ const App = (state) => {
 
             </section>
 
-            
-
-        </main>
         <footer></footer>
     `
 }
 
+const createHoverSelect = () => {
+
+    return `
+                    <section>
+                        <div class="container">
+                            <div class="row my-3">
+                                <button type="button" id="btnCuriosity" class="btn btn-light btn-lg">Curiosity</button>
+                            </div>
+                            <div class="row my-3">
+                                <button type="button" id="btnOpportunity" class="btn btn-light btn-lg btn-block">Opportunity</button>
+                            </div>
+                            <div class="row my-3">
+                                <button type="button" id="btnSpirit" class="btn btn-light btn-lg btn-block">Spirit</button>
+                            </div>
+                        </div>
+                    </section>
+                    <section id="hoverInfosContainer" class="my-3"></section>
+                    `
+
+}
+
+const createReloadButton = () => {
+    const header = document.querySelector('header');
+    const btn = document.createElement('button');
+    btn.innerHTML = 'Let\'s do it again!';
+    btn.addEventListener("click", () => {
+        location.reload();
+        return false;
+    });
+    header.appendChild(btn).classList.add('btnReload');
+}
+
 const hoversCards = () => {
     return `
-    <div class="container ">
-    <div class="row">
-        <div class="col my-3">
-            <div class="card" style="width: 18rem;">
-                <img src="/assets/pictures/curiosity.jpg" class="card-img-top" alt="curiosity.jpg">
-                <div class="card-body">
-                    <h5 class="card-title">Card title</h5>
-                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                    <a id="btnCuriosity" class="btn btn-primary">Curiosity Images</a>
-                </div>
+            <div class="container">
+            <div class="row">
+                <div class="col my-3">
+                    <div class="card mx-auto" style="width: 18rem;">
+                        <img src="/assets/pictures/curiosity.jpg" class="card-img-top" alt="curiosity.jpg">
+                        <div class="card-body">
+                            <h5 class="card-title">Card title</h5>
+                            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                            <a id="btnCuriosity" class="btn btn-primary">Curiosity Images</a>
+                        </div>
+                    </div>
             </div>
-        </div>
         <div class="col my-3">
-            <div class="card" style="width: 18rem;">
+            <div class="card mx-auto" style="width: 18rem;">
                 <img src="/assets/pictures/opportunity.jpg" class="card-img-top" alt="opportunity.jpg">
                 <div class="card-body">
                     <h5 class="card-title">Card title</h5>
@@ -106,12 +211,12 @@ const hoversCards = () => {
             </div>
         </div>
         <div class="col my-3">
-            <div class="card" style="width: 18rem;">
-                <img src="/assets/pictures/spirity.jpg" class="card-img-top" alt="spirity.jpg">
+            <div class="card mx-auto" style="width: 18rem;">
+                <img src="/assets/pictures/spirit.jpg" class="card-img-top" alt="spirit.jpg">
                 <div class="card-body">
                     <h5 class="card-title">Card title</h5>
                     <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                    <a id="btnSpirity" class="btn btn-primary">Spirity Images</a>
+                    <a id="btnSpirit" class="btn btn-primary">Spirit Images</a>
                 </div>
             </div>
         </div>
@@ -120,26 +225,24 @@ const hoversCards = () => {
     `
 }
 
-// listening for load event because page should load before any JS is called
-window.addEventListener('load', () => {
-    getRoversInfoApi(store)
-})
+
 
 // ------------------------------------------------------  COMPONENTS
 
-// Pure function that renders conditional information -- THIS IS JUST AN EXAMPLE, you can delete it.
+
 const Greeting = (name, lastName) => {
-    if (name && lastName) {
+
+    console.log('Name: ', name, "Last Name: ", lastName)
+    if (name || lastName) {
         return `
             <h2>Welcome, ${name} ${lastName}!</h2>
-        `
-    } else if (name) {
-        `
-            <h2>Welcome, ${name} ${lastName}!</h2>
+            <h3 class="my-3">Select a Hover to view some latest images from it!</h3>
+
         `
     } else {
         return `
     <h2>Hello!</h2>
+    <h3 class="my-3">Select a Hover to view some latest images from it!</h3>
 `
     }
 
