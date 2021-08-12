@@ -51,7 +51,7 @@ const updateStore = (store, newState) => {
 
 // function to render the code in the screen -------------------------------------------------
 const render = async(root, state) => {
-    root.innerHTML = App(state)
+    root.innerHTML = App(state, Greeting, createHoverSelect)
     listenRoversBtn()
 }
 
@@ -63,19 +63,19 @@ const listenRoversBtn = () => {
 
     btnCuriosity.addEventListener("click", () => {
         const hoverInfosContainer = document.querySelector('#hoverInfosContainer')
-        hoverInfosContainer.innerHTML = generateHoverInfos('Curiosity', store)
+        hoverInfosContainer.innerHTML = generateHoverInfos('Curiosity', store, GenerateFinalPhotoArray)
         return false;
     });
 
     btnOpportunity.addEventListener("click", () => {
         const hoverInfosContainer = document.querySelector('#hoverInfosContainer')
-        hoverInfosContainer.innerHTML = generateHoverInfos('Opportunity', store)
+        hoverInfosContainer.innerHTML = generateHoverInfos('Opportunity', store, GenerateFinalPhotoArray)
         return false;
     });
 
     btnSpirit.addEventListener("click", () => {
         const hoverInfosContainer = document.querySelector('#hoverInfosContainer')
-        hoverInfosContainer.innerHTML = generateHoverInfos('Spirit', store)
+        hoverInfosContainer.innerHTML = generateHoverInfos('Spirit', store, GenerateFinalPhotoArray)
         return false;
     });
 }
@@ -131,7 +131,7 @@ const toLowerCase = (data) => {
 }
 
 // function to generate the Hovers infos calling the functions to make the Hover card and images carousel ----
-const generateHoverInfos = (hoverName, state) => {
+const generateHoverInfos = (hoverName, state, callback) => {
 
 
     const roverNameLowerCase = toLowerCase(hoverName)
@@ -141,7 +141,7 @@ const generateHoverInfos = (hoverName, state) => {
     // Higher-Order Function selectRover receive the function roverNameLowerCase() as argument
     const selectRover = selectRoverSwitch(toLowerCase(hoverName), state)
 
-    const finalPhotoArray = GenerateFinalPhotoArray(selectRover)
+    const finalPhotoArray = callback(selectRover)
 
     const roverLandingDate = selectRover.roverInfo.latest_photos[0].rover.landing_date
     const roverLaunchDate = selectRover.roverInfo.latest_photos[0].rover.launch_date
@@ -202,14 +202,14 @@ const generateCarouselImages = (PhotoArray) => {
 }
 
 // creates initial content----------------------------------------------------------
-const App = (state) => {
+const App = (state, callbackGreeting, callbackcreateHoverSelect) => {
 
     const userName = state.getIn(['user', 'name'])
     const userLastName = state.getIn(['user', 'lastName'])
 
     return `
-            ${Greeting(userName, userLastName)}
-            ${createHoverSelect()}
+            ${callbackGreeting(userName, userLastName)}
+            ${callbackcreateHoverSelect()}
         <footer></footer>
     `
 }
