@@ -78,27 +78,33 @@ const listenRoversBtn = () => {
     });
 }
 
-const generateHoverInfos = (hoverName, state) => {
-
-    const roverNameLowerCase = hoverName.toLowerCase()
-    let selectRover
-
+const selectRoverSwitch = (roverNameLowerCase, state) => {
     switch (roverNameLowerCase) {
         case 'curiosity':
-            selectRover = state.get('curiosity')
-            break;
+            return state.get('curiosity')
 
         case 'opportunity':
-            selectRover = state.get('opportunity')
-            break;
+            return state.get('opportunity')
 
         case 'spirit':
-            selectRover = state.get('spirit')
-            break;
+            return state.get('spirit')
 
         default:
             break;
     }
+}
+
+const generateHoverInfos = (hoverName, state) => {
+
+    const roverNameLowerCase = hoverName.toLowerCase()
+
+    const selectRover = selectRoverSwitch(roverNameLowerCase, state)
+
+
+    const roverLandingDate = selectRover.roverInfo.latest_photos[0].rover.landing_date
+    const roverLaunchDate = selectRover.roverInfo.latest_photos[0].rover.launch_date
+    const roverStatus = selectRover.roverInfo.latest_photos[0].rover.status.toUpperCase()
+
 
     const photoArray = selectRover.roverInfo.latest_photos
     const photoArraySize = photoArray.length
@@ -107,25 +113,21 @@ const generateHoverInfos = (hoverName, state) => {
 
 
     if (photoArraySize <= maxArraySize) {
-        finalPhotoArray = photoArray
-    } else {
-        const randomMaxArraySize = new Array(maxArraySize);
-
-        const teste = randomMaxArraySize.map((currentValue, index) => {
-            console.log(index)
-            const randomPhotoArrayPosition = Math.floor(photoArraySize * Math.random())
-            const teste2 = selectRover.roverInfo.latest_photos[randomPhotoArrayPosition].img_src
-            finalPhotoArray[index] = teste2
-
-            return teste2
+        finalPhotoArray = photoArray.map((currentValue) => {
+            return currentValue.img_src
         })
-        console.log('Teste: ', teste)
-    }
-    console.log('finalPhotoArray: ', finalPhotoArray)
+    } else {
 
-    const roverLandingDate = selectRover.roverInfo.latest_photos[0].rover.landing_date
-    const roverLaunchDate = selectRover.roverInfo.latest_photos[0].rover.launch_date
-    const roverStatus = selectRover.roverInfo.latest_photos[0].rover.status.toUpperCase()
+        const randomMaxArraySize = new Array(maxArraySize).fill(1);
+
+        finalPhotoArray = randomMaxArraySize.map((currentValue) => {
+            const randomPhotoArrayPosition = Math.floor(photoArraySize * Math.random())
+            const finalRandomArray = selectRover.roverInfo.latest_photos[randomPhotoArrayPosition].img_src
+                /* finalPhotoArray[index] = teste2 */
+
+            return finalRandomArray
+        })
+    }
 
 
     return `
@@ -141,25 +143,33 @@ const generateHoverInfos = (hoverName, state) => {
                 </div>
             </div>
             <div id="hoverCarouselContainer" class="container">
-                ${generateCarouselImages(roverNameLowerCase)}
+                ${generateCarouselImages(finalPhotoArray)}
             </div>
             `
 }
 
-const generateCarouselImages = (roverNameLowerCase) => {
+const generateCarouselImages = (PhotoArray) => {
+
+    const carouselItem = PhotoArray.map((currentValue, index) => {
+        if (index === 0) {
+            return `
+                    <div class="carousel-item active">
+                        <img src="${currentValue}" class="d-block w-100" alt="...">
+                    </div>
+                    `
+        } else {
+            return `
+                    <div class="carousel-item">
+                        <img src="${currentValue}" class="d-block w-100" alt="...">
+                    </div>
+                    `
+        }
+    })
 
     return `
             <div id="carouselControls" class="carousel slide m-5" data-bs-ride="carousel">
                 <div class="carousel-inner">
-                    <div class="carousel-item active">
-                        <img src="/assets/pictures/curiosity.jpg" class="d-block w-100" alt="...">
-                    </div>
-                    <div class="carousel-item">
-                        <img src="/assets/pictures/opportunity.jpg" class="d-block w-100" alt="...">
-                    </div>
-                    <div class="carousel-item">
-                        <img src="/assets/pictures/spirit.jpg" class="d-block w-100" alt="...">
-                    </div>
+                    ${carouselItem}
                 </div>
                 <button class="carousel-control-prev" type="button" data-bs-target="#carouselControls" data-bs-slide="prev">
                     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -175,8 +185,6 @@ const generateCarouselImages = (roverNameLowerCase) => {
 
 // create initial content
 const App = (state) => {
-
-    const roverName = state.get('rovers')
 
     const userName = state.getIn(['user', 'name'])
     const userLastName = state.getIn(['user', 'lastName'])
