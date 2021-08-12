@@ -1,3 +1,10 @@
+Author: Marco Aurélio Mendes Justino
+
+contact: corelioj@hotmail.com
+
+Platform used: Visual Studio Code version 1.59.0
+
+
 # Functional Programming with Javascript 
 
 ## Student Instructions

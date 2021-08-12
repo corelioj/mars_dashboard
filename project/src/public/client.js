@@ -1,5 +1,4 @@
-// Initial variables
-
+// Initial variables ----------------------------------------------------------------------
 const store = Immutable.Map({
     user: { name: '', lastName: '' },
     rovers: ['Curiosity', 'Opportunity', 'Spirit'],
@@ -12,18 +11,19 @@ const root = document.getElementById('root')
 const buttonNameOk = document.querySelector('#btnOk');
 const buttonNameCancel = document.querySelector('#btnCancel');
 
-// listening for load event because page should load before any JS is called
+// listening for load event because page should load before any JS is called -------------
 window.addEventListener('load', () => {
     getRoversInfoApi(store)
 })
 
-
+// Listener function to detect click on OK button after user fulfill the form ---------------
 buttonNameOk.addEventListener('click', () => {
     getFormData()
     removeForm()
     render(root, store)
 })
 
+// function to get the data inserted by the user in form ------------------------------------
 const getFormData = function() {
     const form = document.querySelector('#nameInput');
     const elements = Array.from(form.elements)
@@ -36,24 +36,26 @@ const getFormData = function() {
 
 }
 
-
+// function to remove the form from the screen -----------------------------------------------
 const removeForm = () => {
     const main = document.querySelector('main');
     const form = document.querySelector('#form-input');
     main.removeChild(form);
 }
 
-
+// function to update the store data ---------------------------------------------------------
 const updateStore = (store, newState) => {
     const newStore = store.merge(store, newState);
     store = Object.assign(store, newStore)
 }
 
+// function to render the code in the screen -------------------------------------------------
 const render = async(root, state) => {
     root.innerHTML = App(state)
     listenRoversBtn()
 }
 
+// Listening function to detect each hover selection button click ----------------------------
 const listenRoversBtn = () => {
     const btnCuriosity = document.querySelector('#btnCuriosity');
     const btnOpportunity = document.querySelector('#btnOpportunity');
@@ -78,6 +80,7 @@ const listenRoversBtn = () => {
     });
 }
 
+// function to select the name of each hover and pass this information for getting data in the store variable ---
 const selectRoverSwitch = (roverNameLowerCase, state) => {
     switch (roverNameLowerCase) {
         case 'curiosity':
@@ -94,41 +97,55 @@ const selectRoverSwitch = (roverNameLowerCase, state) => {
     }
 }
 
-const generateHoverInfos = (hoverName, state) => {
-
-    const roverNameLowerCase = hoverName.toLowerCase()
-
-    const selectRover = selectRoverSwitch(roverNameLowerCase, state)
-
-
-    const roverLandingDate = selectRover.roverInfo.latest_photos[0].rover.landing_date
-    const roverLaunchDate = selectRover.roverInfo.latest_photos[0].rover.launch_date
-    const roverStatus = selectRover.roverInfo.latest_photos[0].rover.status.toUpperCase()
-
+//function to generate the array with the latest images URLs from hover selected ----------------
+const GenerateFinalPhotoArray = (selectRover) => {
 
     const photoArray = selectRover.roverInfo.latest_photos
     const photoArraySize = photoArray.length
     const maxArraySize = 10
-    let finalPhotoArray = []
+    let finalPhotos = []
 
 
     if (photoArraySize <= maxArraySize) {
-        finalPhotoArray = photoArray.map((currentValue) => {
+        finalPhotos = photoArray.map((currentValue) => {
             return currentValue.img_src
         })
     } else {
 
         const randomMaxArraySize = new Array(maxArraySize).fill(1);
 
-        finalPhotoArray = randomMaxArraySize.map((currentValue) => {
+        finalPhotos = randomMaxArraySize.map((currentValue) => {
             const randomPhotoArrayPosition = Math.floor(photoArraySize * Math.random())
             const finalRandomArray = selectRover.roverInfo.latest_photos[randomPhotoArrayPosition].img_src
-                /* finalPhotoArray[index] = teste2 */
 
             return finalRandomArray
         })
     }
 
+    return finalPhotos
+}
+
+// function to get the string and put to lowercase. (I did it to use in HOF)----------------------
+const toLowerCase = (data) => {
+    return data.toLowerCase()
+}
+
+// function to generate the Hovers infos calling the functions to make the Hover card and images carousel ----
+const generateHoverInfos = (hoverName, state) => {
+
+
+    const roverNameLowerCase = toLowerCase(hoverName)
+
+
+
+    // Higher-Order Function selectRover receive the function roverNameLowerCase() as argument
+    const selectRover = selectRoverSwitch(toLowerCase(hoverName), state)
+
+    const finalPhotoArray = GenerateFinalPhotoArray(selectRover)
+
+    const roverLandingDate = selectRover.roverInfo.latest_photos[0].rover.landing_date
+    const roverLaunchDate = selectRover.roverInfo.latest_photos[0].rover.launch_date
+    const roverStatus = selectRover.roverInfo.latest_photos[0].rover.status.toUpperCase()
 
     return `
             <div id="hoverCardContainer" class="container">
@@ -148,6 +165,7 @@ const generateHoverInfos = (hoverName, state) => {
             `
 }
 
+// function to generate the images carousel of each rover selected ---------------------
 const generateCarouselImages = (PhotoArray) => {
 
     const carouselItem = PhotoArray.map((currentValue, index) => {
@@ -183,22 +201,21 @@ const generateCarouselImages = (PhotoArray) => {
             `
 }
 
-// create initial content
+// creates initial content----------------------------------------------------------
 const App = (state) => {
 
     const userName = state.getIn(['user', 'name'])
     const userLastName = state.getIn(['user', 'lastName'])
 
     return `
-    
             ${Greeting(userName, userLastName)}
-            
             ${createHoverSelect()}
-
         <footer></footer>
     `
 }
 
+
+// Creates the Hover select Buttons on screen--------------------------------------
 const createHoverSelect = () => {
 
     return `
@@ -220,20 +237,7 @@ const createHoverSelect = () => {
 
 }
 
-const createReloadButton = () => {
-    const header = document.querySelector('header');
-    const btn = document.createElement('button');
-    btn.innerHTML = 'Let\'s do it again!';
-    btn.addEventListener("click", () => {
-        location.reload();
-        return false;
-    });
-    header.appendChild(btn).classList.add('btnReload');
-}
-
-// ------------------------------------------------------  COMPONENTS
-
-
+// Generates the greeting message from the name iserted by the user-------------------
 const Greeting = (name, lastName) => {
 
     if (name || lastName) {
@@ -251,9 +255,9 @@ const Greeting = (name, lastName) => {
 
 }
 
-// ------------------------------------------------------  API CALLS
 
-// Example API call
+
+// API call function ---------------------------------------------------------------
 const getRoversInfoApi = async(store) => {
 
     //pull the API for all 3 rovers and store in it's respective value in store
