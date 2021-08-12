@@ -103,23 +103,29 @@ const generateHoverInfos = (hoverName, state) => {
     const photoArray = selectRover.roverInfo.latest_photos
     const photoArraySize = photoArray.length
     const maxArraySize = 10
-    let finalPhotoArray
+    let finalPhotoArray = []
+
 
     if (photoArraySize <= maxArraySize) {
         finalPhotoArray = photoArray
     } else {
-        let randomMaxArraySize = new Array(maxArraySize);
-        const newArray = randomMaxArraySize.map((photoArray) => {
+        const randomMaxArraySize = new Array(maxArraySize);
 
+        const teste = randomMaxArraySize.map((currentValue, index) => {
+            console.log(index)
+            const randomPhotoArrayPosition = Math.floor(photoArraySize * Math.random())
+            const teste2 = selectRover.roverInfo.latest_photos[randomPhotoArrayPosition].img_src
+            finalPhotoArray[index] = teste2
 
+            return teste2
         })
+        console.log('Teste: ', teste)
     }
+    console.log('finalPhotoArray: ', finalPhotoArray)
 
-    const randomPhotoArrayPosition = Math.floor(photoArraySize * Math.random())
-    const randomPhoto = selectRover.roverInfo.latest_photos[randomPhotoArrayPosition].img_src
-    const roverLandingDate = selectRover.roverInfo.latest_photos[randomPhotoArrayPosition].rover.landing_date
-    const roverLaunchDate = selectRover.roverInfo.latest_photos[randomPhotoArrayPosition].rover.launch_date
-    const roverStatus = selectRover.roverInfo.latest_photos[randomPhotoArrayPosition].rover.status.toUpperCase()
+    const roverLandingDate = selectRover.roverInfo.latest_photos[0].rover.landing_date
+    const roverLaunchDate = selectRover.roverInfo.latest_photos[0].rover.launch_date
+    const roverStatus = selectRover.roverInfo.latest_photos[0].rover.status.toUpperCase()
 
 
     return `
