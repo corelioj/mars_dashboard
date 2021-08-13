@@ -131,6 +131,7 @@ const toLowerCase = (data) => {
 }
 
 // function to generate the Hovers infos calling the functions to make the Hover card and images carousel ----
+// THis function is a HOF function
 const generateHoverInfos = (hoverName, state, callback) => {
 
 
@@ -201,7 +202,7 @@ const generateCarouselImages = (PhotoArray) => {
             `
 }
 
-// creates initial content----------------------------------------------------------
+// creates initial content (HOF with two Callback functions) ------------------------
 const App = (state, callbackGreeting, callbackcreateHoverSelect) => {
 
     const userName = state.getIn(['user', 'name'])
